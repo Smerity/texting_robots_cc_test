@@ -36,7 +36,7 @@ fn main() -> std::io::Result<()> {
 
     let bar = ProgressBar::new(fns.len() as u64);
     bar.set_style(ProgressStyle::default_bar().template(
-        "[{elapsed} / {eta}] {wide_bar} {msg:>9} robots.txt responses from {pos}/{len} files",
+        "[{elapsed_precise} / {eta_precise}] {wide_bar} {msg:>8} robots.txt responses from {pos}/{len} files",
     ));
 
     let total_robots: AtomicU64 = AtomicU64::new(0);
