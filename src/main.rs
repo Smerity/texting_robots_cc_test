@@ -40,6 +40,7 @@ fn main() -> std::io::Result<()> {
     ));
 
     let total_robots: AtomicU64 = AtomicU64::new(0);
+    let err_robots: AtomicU64 = AtomicU64::new(0);
     fns.par_iter().for_each(|filename| {
         let wr = match WarcReader::from_path_gzip(filename) {
             Ok(wr) => wr,
@@ -51,6 +52,8 @@ fn main() -> std::io::Result<()> {
             if record.warc_type().to_string() != "response" {
                 continue;
             }
+
+            let url = record.header(warc::WarcHeader::TargetURI);
 
             let payload: &BStr = record.body().as_bstr();
 
@@ -86,16 +89,34 @@ fn main() -> std::io::Result<()> {
             //println!("=-=-=\n{}\n", String::from_utf8_lossy(body));
 
             match Robot::new("*", body) {
-                Ok(r) => r.allowed("/"),
-                Err(_) => continue,
+                Ok(r) => {
+                    total_robots.fetch_add(1, Ordering::SeqCst);
+                    r.allowed("/");
+                }
+                Err(e) => {
+                    err_robots.fetch_add(1, Ordering::SeqCst);
+                    if let Some(url) = url {
+                        let out = format!("{} - {}", url, e);
+                        eprintln!("\n{}\n", out);
+                        println!("{}", out);
+                    }
+                }
             };
-
-            total_robots.fetch_add(1, Ordering::SeqCst);
         }
 
         bar.inc(1);
-        bar.set_message(format!("{}", total_robots.load(Ordering::SeqCst)));
+        bar.set_message(format!(
+            "({} Ok, {} Err)",
+            total_robots.load(Ordering::SeqCst),
+            err_robots.load(Ordering::SeqCst)
+        ));
     });
+
+    eprintln!(
+        "Final tally: {} Ok, {} Err",
+        total_robots.load(Ordering::SeqCst),
+        err_robots.load(Ordering::SeqCst)
+    );
 
     Ok(())
 }
