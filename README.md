@@ -36,3 +36,20 @@ cat bad_robots.txt | sort | uniq > bad_robots_sorted.txt
 
 This file has been provided, noting that only 151 unique `robots.txt` are unable to be processed.
 As can be seen upon inspecting the file this is understandable given some of the "rules" include Base 64 encoded images, obvious buggy repetitions, and even an adversarial example of a megabyte of repeated "A".
+
+## License
+
+Licensed under either of
+
+ * Apache License, Version 2.0
+   ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license
+   ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+## Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
