@@ -39,6 +39,18 @@ fn main() -> std::io::Result<()> {
         "[{elapsed_precise} / {eta_precise}] {wide_bar} {msg:>8} robots.txt responses from {pos}/{len} files",
     ));
 
+    /* let mut typo_queries = vec![
+        "dissallow:",
+        "dissalow:",
+        "disalow:",
+        "diasllow:",
+        "disallaw:",
+    ];
+    typo_queries.extend_from_slice(&["site map:"]);
+    typo_queries.extend_from_slice(&["useragent:", "user agent:"]); */
+
+    //let typo_queries = vec!["\nallow ", "\ndisallow "];
+
     let total_robots: AtomicU64 = AtomicU64::new(0);
     let err_robots: AtomicU64 = AtomicU64::new(0);
     fns.par_iter().for_each(|filename| {
@@ -56,6 +68,12 @@ fn main() -> std::io::Result<()> {
             let url = record.header(warc::WarcHeader::TargetURI);
 
             let payload: &BStr = record.body().as_bstr();
+
+            /* // If you want to find examples of typos in the robots.txt corpus, uncomment this
+            if typo_queries.iter().any(|q| payload.contains_str(q)) {
+                println!("{}", url.unwrap());
+            }
+            continue; */
 
             // Filter for: "HTTP/1.1 200 OK", "GET /robots.txt HTTP/1.1", "HTTP/1.0 200 Found", ...
             // This will be imperfect but we don't need every possible response
