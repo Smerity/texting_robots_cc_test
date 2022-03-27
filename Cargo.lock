@@ -458,7 +458,7 @@ dependencies = [
 [[package]]
 name = "texting_robots"
 version = "0.1.0"
-source = "git+ssh://git@github.com/Smerity/texting_robots.git#82354d4be24fdb8ba959ceba743e297bbff0d067"
+source = "git+ssh://git@github.com/Smerity/texting_robots.git#13b2ce9075366771e58faee91c3e07c0cc047ba1"
 dependencies = [
  "anyhow",
  "bstr",

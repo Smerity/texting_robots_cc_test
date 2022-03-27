@@ -1,4 +1,6 @@
+use std::collections::HashSet;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
 use std::{env, fs};
 
 use bstr::{BStr, ByteSlice};
@@ -51,6 +53,8 @@ fn main() -> std::io::Result<()> {
 
     //let typo_queries = vec!["\nallow ", "\ndisallow "];
 
+    let set: Arc<Mutex<HashSet<String>>> = Arc::new(Mutex::new(HashSet::new()));
+
     let total_robots: AtomicU64 = AtomicU64::new(0);
     let err_robots: AtomicU64 = AtomicU64::new(0);
     fns.par_iter().for_each(|filename| {
@@ -88,6 +92,16 @@ fn main() -> std::io::Result<()> {
                 .any(|x| line.to_ascii_lowercase().find(x).is_some())
             {
                 continue;
+            }
+
+            // Count unique URLs in the dataset and avoid duplicates
+            {
+                let mut set = set.lock().unwrap();
+                let u = url.clone().unwrap().to_string();
+                if set.contains(&u) {
+                    continue;
+                }
+                set.insert(u);
             }
 
             let fields: Vec<&[u8]> = warc_splitter.splitn(payload, 2).collect();
@@ -129,6 +143,8 @@ fn main() -> std::io::Result<()> {
             err_robots.load(Ordering::SeqCst)
         ));
     });
+
+    eprintln!("\n\nTotal unique URLs: {}", set.lock().unwrap().len());
 
     eprintln!(
         "Final tally: {} Ok, {} Err",
